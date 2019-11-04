@@ -111,6 +111,8 @@ RUN set -eux; \
 	chmod -R +rX .; \
 	chmod 777 logs temp work
 
+RUN curl --output /opt/jmx_prometheus_javaagent-0.12.jar http://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/0.12.0/jmx_prometheus_javaagent-0.12.0.jar
+
 # verify Tomcat Native is working properly
 RUN set -e \
 	&& nativeLines="$(catalina.sh configtest 2>&1)" \
@@ -122,4 +124,7 @@ RUN set -e \
 	fi
 
 EXPOSE 8080
+#CMD java -javaagent:/opt/jmx_prometheus_javaagent-0.12.jar=8088:/data/prometheus-jmx-config.yaml -jar $TOMCAT_HOME/start.jar
+ENV CATALINA_OPTS=-javaagent:/opt/jmx_prometheus_javaagent-0.12.jar=8088:/data/prometheus-jmx-config.yaml
+
 CMD ["catalina.sh", "run"]
